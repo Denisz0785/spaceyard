@@ -1,0 +1,14 @@
+version: v1
+
+# Lint: https://buf.build/docs/lint/overview#defaults-and-configuration
+# Categories: https://buf.build/docs/lint/rules
+
+
+lint:
+  use:
+    - STANDARD
+    - COMMENT_ENUM
+    - COMMENT_MESSAGE
+  except:
+      - RPC_RESPONSE_STANDARD_NAME
+      - RPC_REQUEST_RESPONSE_UNIQUE
