@@ -6,6 +6,7 @@ info:
 
 servers:
   - url: /api/v1
+    x-ogen-server-name: "apiV1"
 
 paths:
   /orders:

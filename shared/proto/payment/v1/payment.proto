@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/ms_bigtech/shared/proto/payment/v1;paymentv1";
+
+// Payment is a service for payment order.
+service PaymentService {
+  rpc PayOrder(PayOrderRequest) returns (PayOrderResponse) {}
+}
+
+// PayOrderRequest is a request to for pay.
+message PayOrderRequest {
+  string order_uuid = 1;
+  string user_uuid = 2;
+  PaymentMethod payment_method = 3;
+}
+
+// PayOrderResponse is a response with an uuid.
+message PayOrderResponse {
+  string transaction_uuid = 1;
+}
+
+// PaymentMethod is a method of pay
+enum PaymentMethod {
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  PAYMENT_METHOD_CARD = 1;
+  PAYMENT_METHOD_SBP = 2;
+  PAYMENT_METHOD_CREDIT_CARD = 3;
+  PAYMENT_METHOD_INVESTOR_MONEY = 4;
+}
