@@ -19,8 +19,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	orderApiV1 "github.com/Denisz0785/spaceyard/order/internal/api/order/v1"
+	orderRepo "github.com/Denisz0785/spaceyard/order/internal/repo/order"
+	orderService "github.com/Denisz0785/spaceyard/order/internal/service/order"
+
+	inventoryv1 "github.com/Denisz0785/spaceyard/order/internal/client/grpc/inventory/v1"
 	orderv1 "github.com/Denisz0785/spaceyard/shared/pkg/openapi/order/v1"
-	inventoryv1 "github.com/Denisz0785/spaceyard/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/Denisz0785/spaceyard/shared/pkg/proto/payment/v1"
 )
 
@@ -244,7 +248,7 @@ func run() error {
 		}
 	}()
 
-	inventoryClient := inventoryv1.NewInventoryServiceClient(invConn)
+	inventoryClient := inventoryv1.New(invConn)
 
 	payConn, err := grpc.NewClient(paymentServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -258,11 +262,20 @@ func run() error {
 	paymentClient := paymentv1.NewPaymentServiceClient(payConn)
 	// --- End gRPC Client Setup ---
 
-	storage := NewOrderStorage()
+	// Регистрируем наш сервис
+	repo := orderRepo.NewOrderStorage()
+	service := orderService.NewOrderService(repo, inventoryClient, paymentClient)
+	api := orderApiV1.NewAPI(service)
 
-	orderHandler := NewOrderHandler(storage, inventoryClient, paymentClient)
+	//storage := NewOrderStorage()
 
-	srv, err := orderv1.NewServer(orderHandler, orderv1.WithPathPrefix("/api/v1"))
+	//orderHandler := NewOrderHandler(storage, inventoryClient, paymentClient)
+
+	//srv, err := orderv1.NewServer(orderHandler, orderv1.WithPathPrefix("/api/v1"))
+	//if err != nil {
+	//	return err
+	//}
+	srv, err := orderv1.NewServer(api, orderv1.WithPathPrefix("/api/v1"))
 	if err != nil {
 		return err
 	}
